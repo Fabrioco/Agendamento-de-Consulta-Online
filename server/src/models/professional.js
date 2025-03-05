@@ -9,7 +9,7 @@ const Professional = database.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    userId: {
+    userid: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
