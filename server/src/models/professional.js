@@ -9,16 +9,16 @@ const Professional = database.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    name: {
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    specialty: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    password: {
-      type: DataTypes.STRING,
+    bio: {
+      type: DataTypes.TEXT,
       allowNull: false,
     },
   },
@@ -26,4 +26,9 @@ const Professional = database.define(
     timestamps: false,
   }
 );
+
+Professional.associate = (models) => {
+  Professional.belongsTo(models.User, { foreignKey: "userId" });
+};
+
 module.exports = Professional;
