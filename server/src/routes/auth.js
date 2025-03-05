@@ -3,11 +3,12 @@ const routerAuth = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
+const Professional = require("../models/professional");
 require("dotenv").config();
 
 routerAuth.post("/register", async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, specialty, bio } = req.body;
 
     if (!name || !email || !password || !role) {
       return res
@@ -20,6 +21,12 @@ routerAuth.post("/register", async (req, res) => {
       return res.status(400).json({ message: "Email já cadastrado" });
     }
 
+    if ((role === "profissional" && !specialty) || !bio) {
+      return res.status(400).json({
+        message: "Preencha todos os campos",
+      });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
@@ -27,6 +34,12 @@ routerAuth.post("/register", async (req, res) => {
       email,
       password: hashedPassword,
       role,
+    });
+
+    const professional = await Professional.create({
+      userid: user.id,
+      specialty,
+      bio,
     });
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
@@ -38,7 +51,7 @@ routerAuth.post("/register", async (req, res) => {
 
     return res.status(200).json({
       message: "Usuário cadastrado com sucesso",
-      token
+      token,
     });
   } catch (error) {
     return res
