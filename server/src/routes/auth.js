@@ -3,6 +3,7 @@ const routerAuth = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
+require("dotenv").config();
 
 routerAuth.post("/register", async (req, res) => {
   try {
@@ -28,9 +29,16 @@ routerAuth.post("/register", async (req, res) => {
       role,
     });
 
-    return res.status(201).json({
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    return res.status(200).json({
       message: "Usuário cadastrado com sucesso",
-      user,
+      token
     });
   } catch (error) {
     return res
@@ -43,6 +51,10 @@ routerAuth.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({ message: "Preencha todos os campos" });
+    }
+
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(400).send({ message: "Email não encontrado" });
@@ -53,9 +65,16 @@ routerAuth.post("/login", async (req, res) => {
       return res.status(400).send({ message: "Senha Incorreta" });
     }
 
-    res.status(201).send({
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    res.status(200).send({
       message: "Bem vindo de volta!",
-      user,
+      token,
     });
   } catch (error) {
     return res.status(500).send({ error: error.message });
