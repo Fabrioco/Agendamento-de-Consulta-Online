@@ -39,4 +39,27 @@ routerAuth.post("/register", async (req, res) => {
   }
 });
 
+routerAuth.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(400).send({ message: "Email não encontrado" });
+    }
+
+    const verifyPassword = await bcrypt.compare(password, user.password);
+    if (!verifyPassword) {
+      return res.status(400).send({ message: "Senha Incorreta" });
+    }
+
+    res.status(201).send({
+      message: "Bem vindo de volta!",
+      user,
+    });
+  } catch (error) {
+    return res.status(500).send({ error: error.message });
+  }
+});
+
 module.exports = routerAuth;
