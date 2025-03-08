@@ -1,6 +1,7 @@
 const express = require("express");
 const Schedule = require("../models/schedule");
 const Professional = require("../models/professional");
+const User = require("../models/user");
 
 const routerSchedule = express.Router();
 
@@ -13,21 +14,43 @@ async function searchProfessional(userId) {
 
 routerSchedule.get("/", async (req, res) => {
   try {
-    const professional = await searchProfessional(req.user.id);
-    const schedules = await Schedule.findOne({
-      where: { professionalid: professional.id },
-    });
+    const schedules = await Schedule.findAll();
     res.status(201).json({
       schedules,
     });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+routerSchedule.get("/:professionalId", async (req, res) => {
+  try {
+    const { professionalId } = req.params;
+    const schedules = await Schedule.findAll({
+      where: { professionalid: professionalId },
+    });
+    const professionalData = await Professional.findOne({
+      where: { id: professionalId },
+    });
+    const professional = await User.findOne({
+      where: { id: professionalData.userid },
+    });
+    res.status(201).json({ professional, schedules });
+  } catch (error) {
+    res.json({ error: error.message });
   }
 });
 
 routerSchedule.post("/", async (req, res) => {
   try {
     const { starttime, endtime } = req.body;
+
+    if (req.user.role !== "profissional") {
+      return res.status(400).json({
+        message: "Você não permissão para isso!",
+      });
+    }
+
     if (!starttime || !endtime) {
       return res.status(400).json({
         message: "Preencha todos os campos!",
