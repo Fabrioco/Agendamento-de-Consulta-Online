@@ -7,11 +7,11 @@ export default function Dashboard() {
     <div className="flex flex-col items-center justify-center w-full mx-auto px-4">
       <header className="flex flex-row justify-between items-center w-full">
         <Link
-          href="/"
-          className="text-3xl font-bold uppercase bg-green-700 px-4 py-2 mt-4 rounded-md text-white flex gap-2"
+          href="/dashboard"
+          className="text-2xl font-bold uppercase mt-4 rounded-md text-green-700 flex gap-1"
         >
           <i>
-            <HeadCircuit size={32} color="#ffffff" />
+            <HeadCircuit size={32} color="oklch(0.627 0.194 149.214)" />
           </i>
           Agenda aqui
         </Link>
